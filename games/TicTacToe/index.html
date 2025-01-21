@@ -1,1 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tic-Tac-Toe</title>
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
+table {
+    border-collapse: collapse;
+    width: 90vmin;
+    height: 90vmin;
+    table-layout: fixed;
+}
+
+td {
+    border: 6vmin solid black;
+    font-size: 10vmin;
+    text-align: center;
+    cursor: pointer;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 3vmin;
+}
+</style>
+</head>
+<body>
+<h1>Tic-Tac-Toe</h1>
+<table>
+  <tr>
+    <td id="00"></td>
+    <td id="01"></td>
+    <td id="02"></td>
+  </tr>
+  <tr>
+    <td id="10"></td>
+    <td id="11"></td>
+    <td id="12"></td>
+  </tr>
+  <tr>
+    <td id="20"></td>
+    <td id="21"></td>
+    <td id="22"></td>
+  </tr>
+</table>
+<div id="message"></div>
+
+<script>
+const board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+let currentPlayer = 1;
+
+function printBoard() {
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            const cell = document.getElementById(`${i}${j}`);
+            cell.innerText = board[i][j] === 0 ? '' : (board[i][j] === 1 ? 'X' : 'O');
+        }
+    }
+}
+
+function checkWin() {
+    for (let i = 0; i < 3; i++) {
+        if (board[i][0] === board[i][1] && board[i][1] === board[i][2] && board[i][0] !== 0) {
+            return board[i][0];
+        }
+        if (board[0][i] === board[1][i] && board[1][i] === board[2][i] && board[0][i] !== 0) {
+            return board[0][i];
+        }
+    }
+    if (board[0][0] === board[1][1] && board[1][1] === board[2][2] && board[0][0] !== 0) {
+        return board[0][0];
+    }
+    if (board[0][2] === board[1][1] && board[1][1] === board[2][0] && board[0][2] !== 0) {
+        return board[0][2];
+    }
+    return 0;
+}
+
+function checkDraw() {
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (board[i][j] === 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function canWin(player) {
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (board[i][j] === 0) {
+                board[i][j] = player;
+                if (checkWin() === player) {
+                    board[i][j] = 0;
+                    return [i, j];
+                }
+                board[i][j] = 0;
+            }
+        }
+    }
+    return null;
+}
+
+function twoWinningMoves(player) {
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (board[i][j] === 0) {
+                board[i][j] = player;
+                let winCount = 0;
+                for (let x = 0; x < 3; x++) {
+                    for (let y = 0; y < 3; y++) {
+                        if (board[x][y] === 0) {
+                            board[x][y] = player;
+                            if (checkWin() === player) {
+                                winCount++;
+                            }
+                            board[x][y] = 0;
+                        }
+                    }
+                }
+                board[i][j] = 0;
+                if (winCount >= 2) {
+                    return [i, j];
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function botTurn() {
+    if (JSON.stringify(board) === JSON.stringify([[0,0,0],[0,0,0],[0,0,0]])) {
+        let row = [0, 2][Math.floor(Math.random() * 2)];
+        let col = [0, 2][Math.floor(Math.random() * 2)];
+        board[row][col] = 1;
+    } else if (canWin(1)) {
+        let [row, col] = canWin(1);
+        board[row][col] = 1;
+    } else if (canWin(2)) {
+        let [row, col] = canWin(2);
+        board[row][col] = 1;
+    } else if (twoWinningMoves(1)) {
+        let [row, col] = twoWinningMoves(1);
+        board[row][col] = 1;
+    } else {
+        while (true) {
+            let row = Math.floor(Math.random() * 3);
+            let col = Math.floor(Math.random() * 3);
+            if (board[row][col] === 0) {
+                board[row][col] = 1;
+                break;
+            }
+        }
+    }
+
+    printBoard();
+
+    if (checkWin() === 1) {
+        document.getElementById('message').innerText = 'You lose!';
+        return;
+    }
+    if (checkDraw()) {
+        document.getElementById('message').innerText = 'Draw!';
+        return;
+    }
+    currentPlayer = 2;
+}
+
+function playerTurn(row, col) {
+    if (board[row][col] === 0 && currentPlayer === 2) {
+        board[row][col] = 2;
+        printBoard();
+
+        if (checkWin() === 2) {
+            document.getElementById('message').innerText = 'You win!';
+            return;
+        } else if (checkDraw()) {
+            document.getElementById('message').innerText = 'Draw!';
+            return;
+        }
+        currentPlayer = 1;
+        botTurn();
+    }
+}
+
+
+const cells = document.querySelectorAll('td');
+cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+        const row = parseInt(cell.id[0]);
+        const col = parseInt(cell.id[1]);
+        playerTurn(row, col);
+    });
+});
+
+botTurn();
+
+</script>
+
+</body>
+</html>
