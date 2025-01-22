@@ -205,7 +205,19 @@ function playerTurn(row, col) {
         botTurn();
     }
 }
+function endGame(message) {
+    document.getElementById('message').innerText = message;
+    document.getElementById('playAgain').style.display = 'block'; // Show the button
+}
 
+function restartGame() {
+    board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    currentPlayer = 1;
+    printBoard();
+    document.getElementById('message').innerText = '';
+    document.getElementById('playAgain').style.display = 'none'; // Hide the button
+    botTurn(); // Bot starts the new game
+}
 
 const cells = document.querySelectorAll('td');
 cells.forEach(cell => {
