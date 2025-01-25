@@ -201,12 +201,22 @@ function resetGame() {
     updateBoard();
     document.getElementById('message').textContent = '';
     document.getElementById('playAgain').style.display = 'none';
-    botTurn();
+    chooseFirstPlayer();
+}
+
+function chooseFirstPlayer() {
+    const choice = confirm("Do you want to go first?");
+    if (choice) {
+        currentPlayer = 2;
+    } else {
+        currentPlayer = 1;
+        botTurn();
+    }
 }
 
 document.getElementById('playAgain').addEventListener('click', resetGame);
 updateBoard();
-botTurn();
+chooseFirstPlayer();
 </script>
 
 </body>
