@@ -8,14 +8,13 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f0f0;
+    background-color: #000000;
     font-family: sans-serif;
 }
 #game {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 5px;
-    border: 2px solid #333;
     width: 80vmin;
     height: 80vmin;
 }
@@ -23,10 +22,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 4vmin;
+    font-size: 12vmin;
     cursor: pointer;
-    background-color: #fff;
+    background-color: #000000;
     border: 1px solid #ccc;
+    width: calc(80vmin / 3 - 10px);
+    height: calc(80vmin / 3 - 10px);
 }
 .cell.x {
     color: #007bff;
@@ -38,6 +39,7 @@ body {
     margin-top: 20px;
     font-size: 2em;
     text-align: center;
+    color: #ffffff;
 }
 #playAgain {
     margin-top: 20px;
@@ -118,7 +120,19 @@ function twoWinningMoves(player) {
     return false;
 }
 
+function disablePlayerInput() {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => cell.style.pointerEvents = 'none');
+}
+
+function enablePlayerInput() {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => cell.style.pointerEvents = 'auto');
+}
+
 function botTurn() {
+    disablePlayerInput(); // Disable player input
+
     if (JSON.stringify(board) === JSON.stringify([[0, 0, 0], [0, 0, 0], [0, 0, 0]])) {
         const moves = [[0, 0], [0, 2], [2, 0], [2, 2]];
         const [row, col] = moves[Math.floor(Math.random() * moves.length)];
@@ -129,19 +143,19 @@ function botTurn() {
     } else if (canWin(2)) {
         const [row, col] = canWin(2);
         board[row][col] = 1;
-
     } else if (twoWinningMoves(1)) {
        const [row, col] = twoWinningMoves(1);
        board[row][col] = 1;
     } else {
         let row, col;
-		do {
-			row = Math.floor(Math.random() * 2) * 2;  // 0 or 2
-  			col = Math.floor(Math.random() * 2) * 2;  // 0 or 2
+        do {
+            row = Math.floor(Math.random() * 2) * 2;  // 0 or 2
+            col = Math.floor(Math.random() * 2) * 2;  // 0 or 2
         } while (board[row][col] !== 0);
         board[row][col] = 1;
     }
 
+    enablePlayerInput(); // Re-enable player input
 
     updateBoard();
     if (checkWin() === 1) {showMessage("You Lose!"); gameOver = true;}
