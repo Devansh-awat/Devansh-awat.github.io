@@ -205,13 +205,34 @@ function resetGame() {
 }
 
 function chooseFirstPlayer() {
-    const choice = confirm("Do you want to go first?");
-    if (choice) {
+    const gameDiv = document.getElementById('game');
+    gameDiv.innerHTML = `
+        <div id="chooseFirstPlayer" style="text-align: center; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 100%;">
+            <p>Do you want to go first?</p>
+            <div style="display: flex; justify-content: center;">
+                <button id="yesButton" style="margin-right: 10px; padding: 10px 20px; font-size: 1.2em; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px;">Yes</button>
+                <button id="noButton" style="padding: 10px 20px; font-size: 1.2em; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 5px;">No</button>
+            </div>
+        </div>
+    <style>
+        #chooseFirstPlayer {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            margin: auto; /* Center in the parent if it's a block element */
+        }
+    </style>
+    `;
+
+    document.getElementById('yesButton').addEventListener('click', () => {
         currentPlayer = 2;
-    } else {
+        updateBoard();
+    });
+
+    document.getElementById('noButton').addEventListener('click', () => {
         currentPlayer = 1;
         botTurn();
-    }
+    });
 }
 
 document.getElementById('playAgain').addEventListener('click', resetGame);
