@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sudoku Solver</title>
+<style>
+  body {
+    font-family: sans-serif;
+    color: white;
+    background-color: black;
+  }
+  table {
+    border-collapse: collapse;
+    margin: 20px auto;
+  }
+  td {
+    border: 1px solid white;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    font-size: 20px;
+    background-color: black; /* Added this line */
+    color: white; /* Added this line */
+  }
+  input[type="number"] {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      font-size: 20px;
+      border: 0px solid white;
+      -moz-appearance: textfield; /* Firefox */
+      -webkit-appearance: textfield; /* Webkit */
+      appearance: textfield;
+      background-color: black; /* Added this line */
+      color: white; /* Added this line */
+  }
+  input[type="number"]::-webkit-inner-spin-button, 
+  input[type="number"]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+  }
+  
+  /* Add thick borders for Sudoku grid lines */
+  td:nth-child(3n) {
+    border-right: 2px solid white;
+  }
+  td:nth-child(3n+1) {
+    border-left: 2px solid white;
+  }
+  tr:nth-child(3n) td {
+    border-bottom: 2px solid white;
+  }
+  tr:nth-child(3n+1) td {
+    border-top: 2px solid white;
+  }
+</style>
+</head>
+<body>
+
+<div style="text-align: center;">
+  <h1>Sudoku Solver</h1>
+  <p>Enter the Sudoku puzzle below (use 0 for empty cells):</p>
+</div>
+
+<table id="sudoku-input"></table>
+<div style="text-align: center;">
+  <button onclick="solveSudoku()" style="background-color: blue; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">Solve</button>
+  <p>Solution:</p>
+</div>
+<table id="sudoku-solution"></table>
+<script>
+function addInputListeners() {
+  const inputElements = Array.from(document.querySelectorAll('input[type="number"]'));
+
+  inputElements.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      const value = input.value;
+
+      // Validate input (ensure it's a number between 0 and 9 or the string "0")
+      if ((value >= 0 && value <= 9 && value.length === 1) || value === '0') {
+        // Move to the next input field
+        const nextIndex = (index + 1) % inputElements.length;
+        inputElements[nextIndex].focus();
+      } else if (value.length > 1) {
+        input.value = value.slice(0, 1);
+        const nextIndex = (index + 1) % inputElements.length;
+        inputElements[nextIndex].focus();
+      }
+    });
+  });
+}
+</script>
+
+<script>
+
+function createInputTable() {
+  const table = document.getElementById('sudoku-input');
+  for (let y = 0; y < 9; y++) {
+    const row = table.insertRow();
+    for (let x = 0; x < 9; x++) {
+      const cell = row.insertCell();
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.max = '9';
+      input.id = `input-${y}-${x}`;
+      input.value = ''; // Ensure the input cells are empty at the start
+
+      if (x % 3 === 0) cell.classList.add('thick-border');
+      if (y % 3 === 0) cell.classList.add('thick-border');
+
+      cell.appendChild(input);
+    }
+  }
+}
+
+function getSudokuFromInput() {
+    let sudoku = [];
+    for (let y = 0; y < 9; y++) {
+        sudoku[y] = [];
+        for (let x = 0; x < 9; x++) {
+            const inputValue = document.getElementById(`input-${y}-${x}`).value;
+            sudoku[y][x] = parseInt(inputValue) || 0;
+        }
+    }
+    return sudoku;
+}
+
+
+function CheckSudoko(sudoko) {
+    let s = new Set();
+    for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+            if (sudoko[y][x] === 0) continue;
+            if (sudoko[y][x] < 1 || sudoko[y][x] > 9) return false;
+
+            const c = `c${y} ${sudoko[y][x]}`;
+            const r = `r${x} ${sudoko[y][x]}`;
+            const b = `b${Math.floor(x / 3) + Math.floor(y / 3) * 3} ${sudoko[y][x]}`;
+
+            if (s.has(c) || s.has(r) || s.has(b)) return false;
+            s.add(c);
+            s.add(r);
+            s.add(b);
+        }
+    }
+    return true;
+}
+
+
+function solve(sudoko) {
+    for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+            if (sudoko[y][x] === 0) {
+                for (let i = 1; i <= 9; i++) {
+                    sudoko[y][x] = i;
+                    if (CheckSudoko(sudoko)) {
+                        if (solve(sudoko)) {
+                            return true;
+                        }
+                    }
+                }
+                sudoko[y][x] = 0;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+
+
+function displaySudoku(sudoku, tableId) {
+  const table = document.getElementById(tableId);
+  table.innerHTML = '';
+
+  for (let y = 0; y < 9; y++) {
+    const row = table.insertRow();
+    for (let x = 0; x < 9; x++) {
+      const cell = row.insertCell();
+      cell.textContent = sudoku[y][x];
+
+      if (x % 3 === 0) cell.classList.add('thick-border');
+      if (y % 3 === 0) cell.classList.add('thick-border');
+    }
+  }
+}
+
+
+function solveSudoku() {
+  const inputSudoku = getSudokuFromInput();
+  const solvedSudoku = JSON.parse(JSON.stringify(inputSudoku));
+
+  if (solve(solvedSudoku)) {
+    displaySudoku(solvedSudoku, 'sudoku-solution');
+  } else {
+    alert("No solution found.");
+  }
+}
+createInputTable();
+
+function displaySudoku(sudoku, tableId, originalSudoku) {
+  const table = document.getElementById(tableId);
+  table.innerHTML = '';
+
+  for (let y = 0; y < 9; y++) {
+    const row = table.insertRow();
+    for (let x = 0; x < 9; x++) {
+      const cell = row.insertCell();
+      cell.textContent = sudoku[y][x];
+
+      if (originalSudoku && originalSudoku[y][x] !== 0) {
+        cell.style.color = 'red';
+      }
+
+      if (x % 3 === 0) cell.classList.add('thick-border');
+      if (y % 3 === 0) cell.classList.add('thick-border');
+    }
+  }
+}
+
+function solveSudoku() {
+  const inputSudoku = getSudokuFromInput();
+  const solvedSudoku = JSON.parse(JSON.stringify(inputSudoku));
+
+  if (solve(solvedSudoku)) {
+    displaySudoku(solvedSudoku, 'sudoku-solution', inputSudoku);
+  } else {
+    alert("No solution found.");
+  }
+}
+addInputListeners();
+</script>
+</body>
+</html>
