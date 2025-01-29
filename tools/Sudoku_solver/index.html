@@ -64,9 +64,9 @@
 <table id="sudoku-input"></table>
 <div style="text-align: center;">
   <button onclick="solveSudoku()" style="background-color: blue; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">Solve</button>
-  <p>Solution:</p>
+  <button onclick="clearSudoku()" style="background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">Clear</button>
 </div>
-<table id="sudoku-solution"></table>
+
 <script>
 function addInputListeners() {
   const inputElements = Array.from(document.querySelectorAll('input[type="number"]'));
@@ -88,9 +88,6 @@ function addInputListeners() {
     });
   });
 }
-</script>
-
-<script>
 
 function createInputTable() {
   const table = document.getElementById('sudoku-input');
@@ -125,7 +122,6 @@ function getSudokuFromInput() {
     return sudoku;
 }
 
-
 function CheckSudoko(sudoko) {
     let s = new Set();
     for (let y = 0; y < 9; y++) {
@@ -145,7 +141,6 @@ function CheckSudoko(sudoko) {
     }
     return true;
 }
-
 
 function solve(sudoko) {
     for (let y = 0; y < 9; y++) {
@@ -167,68 +162,30 @@ function solve(sudoko) {
     return true;
 }
 
-
-
-
-function displaySudoku(sudoku, tableId) {
-  const table = document.getElementById(tableId);
-  table.innerHTML = '';
-
-  for (let y = 0; y < 9; y++) {
-    const row = table.insertRow();
-    for (let x = 0; x < 9; x++) {
-      const cell = row.insertCell();
-      cell.textContent = sudoku[y][x];
-
-      if (x % 3 === 0) cell.classList.add('thick-border');
-      if (y % 3 === 0) cell.classList.add('thick-border');
-    }
-  }
-}
-
-
 function solveSudoku() {
   const inputSudoku = getSudokuFromInput();
   const solvedSudoku = JSON.parse(JSON.stringify(inputSudoku));
 
   if (solve(solvedSudoku)) {
-    displaySudoku(solvedSudoku, 'sudoku-solution');
-  } else {
-    alert("No solution found.");
-  }
-}
-createInputTable();
-
-function displaySudoku(sudoku, tableId, originalSudoku) {
-  const table = document.getElementById(tableId);
-  table.innerHTML = '';
-
-  for (let y = 0; y < 9; y++) {
-    const row = table.insertRow();
-    for (let x = 0; x < 9; x++) {
-      const cell = row.insertCell();
-      cell.textContent = sudoku[y][x];
-
-      if (originalSudoku && originalSudoku[y][x] !== 0) {
-        cell.style.color = 'red';
+    for (let y = 0; y < 9; y++) {
+      for (let x = 0; x < 9; x++) {
+        document.getElementById(`input-${y}-${x}`).value = solvedSudoku[y][x];
       }
-
-      if (x % 3 === 0) cell.classList.add('thick-border');
-      if (y % 3 === 0) cell.classList.add('thick-border');
     }
-  }
-}
-
-function solveSudoku() {
-  const inputSudoku = getSudokuFromInput();
-  const solvedSudoku = JSON.parse(JSON.stringify(inputSudoku));
-
-  if (solve(solvedSudoku)) {
-    displaySudoku(solvedSudoku, 'sudoku-solution', inputSudoku);
   } else {
     alert("No solution found.");
   }
 }
+
+function clearSudoku() {
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+      document.getElementById(`input-${y}-${x}`).value = '';
+    }
+  }
+}
+
+createInputTable();
 addInputListeners();
 </script>
 </body>
