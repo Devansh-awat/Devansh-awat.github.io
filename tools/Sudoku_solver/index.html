@@ -7,6 +7,9 @@
     font-family: sans-serif;
     color: white;
     background-color: black;
+    input[type="number"] {
+      color: red;
+    }
   }
   table {
     border-collapse: collapse;
@@ -169,7 +172,13 @@ function solveSudoku() {
   if (solve(solvedSudoku)) {
     for (let y = 0; y < 9; y++) {
       for (let x = 0; x < 9; x++) {
-        document.getElementById(`input-${y}-${x}`).value = solvedSudoku[y][x];
+        const inputElement = document.getElementById(`input-${y}-${x}`);
+        if (inputElement.value === '') {
+          inputElement.value = solvedSudoku[y][x];
+          inputElement.style.color = 'white'; // Set the color to white for solved numbers
+        } else {
+          inputElement.style.color = 'red'; // Set the color to red for user input numbers
+        }
       }
     }
   } else {
@@ -180,7 +189,9 @@ function solveSudoku() {
 function clearSudoku() {
   for (let y = 0; y < 9; y++) {
     for (let x = 0; x < 9; x++) {
-      document.getElementById(`input-${y}-${x}`).value = '';
+      const inputElement = document.getElementById(`input-${y}-${x}`);
+      inputElement.value = '';
+      inputElement.style.color = ''; // Reset the color
     }
   }
 }
